@@ -10,7 +10,39 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-paths:
+paths: #路由地址
+  /authenticate:
+    post:       #请求方法
+      tags:     #命名空间
+        - "auth"
+      summary: "Get a accessToken"  #描述信息
+      consumes: #消费格式
+        - "application/json"
+      produces: #生产格式
+        - "application/json"
+      parameters: #参数
+        - name: "body" #参数名字
+          description: "account of fastone"  #描述
+          required: true #是否必要
+          in: "body"  #属于哪种参数 body, header, formData, query, path
+          schema:
+            $ref: "#/definitions/Auth"
+      responses:
+        400:
+          description: "Invalid input"
+        403:
+          description: "Invalid credential"
+        200:
+          description: "Get a accessToken"
+
+definitions:
+  Auth:
+    type: "string"
+    properties:
+      usernameOrEmail:
+        type: "string"
+      password:
+        type: "string"
 
 
 
