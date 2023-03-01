@@ -6,6 +6,8 @@
 package log
 
 import (
+	"context"
+	"github.com/miao-crispy-corner/gateway/internal/pkg/known"
 	"sync"
 	"time"
 
@@ -13,7 +15,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// Logger 定义了 miniblog 项目的日志接口. 该接口只包含了支持的日志记录方法.
+// Logger 定义了项目的日志接口. 该接口只包含了支持的日志记录方法.
 type Logger interface {
 	Debugw(msg string, keysAndValues ...interface{})
 	Infow(msg string, keysAndValues ...interface{})
@@ -78,7 +80,7 @@ func NewLogger(opts *Options) *zapLogger {
 
 	// 创建构建 zap.Logger 需要的配置
 	cfg := &zap.Config{
-		// 是否在日志中显示调用日志所在的文件和行号，例如：`"caller":"miniblog/miniblog.go:75"`
+		// 是否在日志中显示调用日志所在的文件和行号，例如：`"caller":"gateway/gateway.go:75"`
 		DisableCaller: opts.DisableCaller,
 		// 是否禁止在 panic 及以上级别打印堆栈信息
 		DisableStacktrace: opts.DisableStacktrace,
@@ -165,4 +167,25 @@ func Fatalw(msg string, keysAndValues ...interface{}) {
 
 func (l *zapLogger) Fatalw(msg string, keysAndValues ...interface{}) {
 	l.z.Sugar().Fatalw(msg, keysAndValues...)
+}
+
+// C 解析传入的 context，尝试提取关注的键值，并添加到 zap.Logger 结构化日志中.
+func C(ctx context.Context) *zapLogger {
+	return std.C(ctx)
+}
+
+func (l *zapLogger) C(ctx context.Context) *zapLogger {
+	lc := l.clone()
+
+	if requestID := ctx.Value(known.XRequestIDKey); requestID != nil {
+		lc.z = lc.z.With(zap.Any(known.XRequestIDKey, requestID))
+	}
+
+	return lc
+}
+
+// clone 深度拷贝 zapLogger.
+func (l *zapLogger) clone() *zapLogger {
+	lc := *l
+	return &lc
 }

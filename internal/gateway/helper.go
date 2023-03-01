@@ -6,9 +6,11 @@
 package gateway
 
 import (
+	"github.com/miao-crispy-corner/gateway/internal/gateway/store"
+	"github.com/miao-crispy-corner/gateway/internal/pkg/log"
+	"github.com/miao-crispy-corner/gateway/pkg/db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github/miao-crispy-corner/go_gateway_new/internal/pkg/log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,7 +31,7 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".cobrademo" (without extension).
+		// Search config in home directory with name ".gateway" (without extension).
 		viper.AddConfigPath(filepath.Join(home, recommendedHomeDir))
 		viper.AddConfigPath(".")
 		viper.SetConfigType("yaml")
@@ -43,7 +45,7 @@ func initConfig() {
 	viper.SetEnvKeyReplacer(replacer)
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	if err := viper.ReadInConfig(); err != nil {
 		log.Errorw("Failed to read viper configuration file", "err", err)
 	}
 
@@ -59,4 +61,27 @@ func logOptions() *log.Options {
 		Format:            viper.GetString("log.format"),
 		OutputPaths:       viper.GetStringSlice("log.output-paths"),
 	}
+}
+
+// initStore 读取 db 配置，创建 gorm.DB 实例，并初始化store 层.
+func initStore() error {
+	dbOptions := &db.MySQLOptions{
+		Host:                  viper.GetString("db.host"),
+		Username:              viper.GetString("db.username"),
+		Password:              viper.GetString("db.password"),
+		Database:              viper.GetString("db.database"),
+		MaxIdleConnections:    viper.GetInt("db.max-idle-connections"),
+		MaxOpenConnections:    viper.GetInt("db.max-open-connections"),
+		MaxConnectionLifeTime: viper.GetDuration("db.max-connection-life-time"),
+		LogLevel:              viper.GetInt("db.log-level"),
+	}
+
+	ins, err := db.NewMySQL(dbOptions)
+	if err != nil {
+		return err
+	}
+
+	_ = store.NewStore(ins)
+
+	return nil
 }

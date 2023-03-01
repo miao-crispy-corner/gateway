@@ -7,7 +7,7 @@ swagger: "2.0"
 info:
   version: "1.0.0"
   title: go_gateway_new
-  description: The API for the miniblog project
+  description: The API for the gateway project
   contact:
     name: luomiaozhong
     email: 2383304714@qq.com

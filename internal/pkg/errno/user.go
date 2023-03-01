@@ -3,18 +3,9 @@
 // license that can be found in the LICENSE file. The original repo for
 // this file is https://github.com/miao-crispy-corner/go_gateway_new.
 
-package main
+package errno
 
-import (
-	"github.com/miao-crispy-corner/gateway/internal/gateway"
-	_ "go.uber.org/automaxprocs"
-	"os"
+var (
+	// ErrUserAlreadyExist 代表用户已经存在.
+	ErrUserAlreadyExist = &Errno{HTTP: 400, Code: "FailedOperation.UserAlreadyExist", Message: "User already exist."}
 )
-
-// Go 程序的默认入口函数(主函数).
-func main() {
-	command := gateway.NewGateWayCommand()
-	if err := command.Execute(); err != nil {
-		os.Exit(1)
-	}
-}

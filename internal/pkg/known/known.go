@@ -3,18 +3,9 @@
 // license that can be found in the LICENSE file. The original repo for
 // this file is https://github.com/miao-crispy-corner/go_gateway_new.
 
-package main
+package known
 
-import (
-	"github.com/miao-crispy-corner/gateway/internal/gateway"
-	_ "go.uber.org/automaxprocs"
-	"os"
+const (
+	// XRequestIDKey 用来定义 Gin 上下文中的键，代表请求的 uuid.
+	XRequestIDKey = "X-Request-ID"
 )
-
-// Go 程序的默认入口函数(主函数).
-func main() {
-	command := gateway.NewGateWayCommand()
-	if err := command.Execute(); err != nil {
-		os.Exit(1)
-	}
-}
